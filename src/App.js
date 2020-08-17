@@ -1,3 +1,5 @@
+"use strict";
+
 import SearchSection from "./container/SearchSection.js";
 import ContentSection from "./container/ContentSection.js";
 import NotFound from "./component/NotFound.js";
@@ -27,77 +29,72 @@ export default class App {
   }
 
   setState(nextState) {
-    console.log(nextState);
     const curState = this.getState();
     this.state = JSON.parse(JSON.stringify({ ...curState, ...nextState }));
   }
 
-  // 최초 고양이 사진 랜덤 fetch
-  fetchCats() {
-    return Promise.resolve([
-      {
-        breeds: [
-          {
-            adaptability: 5,
-            affection_level: 5,
-            alt_names: "Ankara",
-            cfa_url: "http://cfa.org/Breeds/BreedsSthruT/TurkishAngora.aspx",
-            child_friendly: 4,
-            country_code: "TR",
-            country_codes: "TR",
-            description:
-              "This is a smart and intelligent cat which bonds well with humans. With its affectionate and playful personality the Angora is a top choice for families. The Angora gets along great with other pets in the home, but it will make clear who is in charge, and who the house belongs to",
-            dog_friendly: 5,
-            energy_level: 5,
-            experimental: 0,
-            grooming: 2,
-            hairless: 0,
-            health_issues: 2,
-            hypoallergenic: 0,
-            id: "tang",
-            indoor: 0,
-            intelligence: 5,
-            life_span: "15 - 18",
-            name: "Turkish Angora",
-            natural: 1,
-            origin: "Turkey",
-            rare: 0,
-            rex: 0,
-            shedding_level: 2,
-            short_legs: 0,
-            social_needs: 5,
-            stranger_friendly: 5,
-            suppressed_tail: 0,
-            temperament:
-              "Affectionate, Agile, Clever, Gentle, Intelligent, Playful, Social",
-            vcahospitals_url:
-              "https://vcahospitals.com/know-your-pet/cat-breeds/turkish-angora",
-            vetstreet_url: "http://www.vetstreet.com/cats/turkish-angora",
-            vocalisation: 3,
-            weight: {
-              imperial: "5 - 10",
-              metric: "2 - 5"
-            },
-            wikipedia_url: "https://en.wikipedia.org/wiki/Turkish_Angora"
-          }
-        ],
-        height: 739,
-        id: "ZDIuYg5UZ",
-        url: "https://cdn2.thecatapi.com/images/ZDIuYg5UZ.png",
-        width: 1100
+  async fetchCatData(params) {
+    const { breed_name, limit } = params;
+    let cats = null;
+    try {
+      // 고양이 종으로 검색
+      if (!breed_name) {
+        cats = await catAPI.breeds.getList({ limit });
+      } else {
+        cats = await catAPI.breeds.findByName({ name: breed_name });
       }
-    ]);
+
+      cats[0].id = null;
+      const catImgPromises = cats.map(async cat => {
+        let response;
+        try {
+          response = await catAPI.images.findByBreedID({
+            breed_id: cat.id
+          });
+          cat.image = {
+            url: response[0].url
+          };
+        } catch (err) {
+          console.error(err);
+          response = err;
+        }
+        return cat;
+      });
+
+      cats = await Promise.all(catImgPromises);
+
+      // breed id를 기준으로 image link 검색
+      // cats = await cats.reduce(async (prevPromise, cat) => {
+      //   await prevPromise;
+      //   let url;
+      //   try {
+      //     const response = await catAPI.images.findByBreedID({
+      //       breed_id: cat.id
+      //     });
+      //     url = response[0].url;
+      //   } catch (err) {
+      //     url = null;
+      //   }
+      //   cat.url = url;
+      //   return cats;
+      // }, Promise.resolve(cats));
+
+      return cats;
+    } catch (err) {
+      throw err;
+    }
   }
 
   async render() {
     if (this.getState().isInitial) {
       try {
-        const initData = await this.fetchCats();
+        const initData = await this.fetchCatData({ limit: 20 });
         this.setState({
           dataset: initData
         });
       } catch (error) {
-        // 고양이 사진 없는 경우
+        // handle network error
+        console.error(error);
       }
 
       this.setState({

@@ -2,7 +2,6 @@ import createElement from "../util/createElement.js";
 
 export default class Card {
   constructor({ $target, data }) {
-    console.log("2", data);
     this.$target = $target;
     this.state = {
       data
@@ -18,10 +17,10 @@ export default class Card {
   setState() {}
 
   render() {
-    const { breed, url } = this.state.data;
+    const { breed, image } = this.state.data;
     this.$cardImg = createElement("img", {
       class: "card__img",
-      src: url,
+      src: image ? image.url : "#",
       alt: "card img alt"
     });
     // this.$cardTitle = createElement(
