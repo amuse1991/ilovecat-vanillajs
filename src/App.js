@@ -6,6 +6,7 @@ import NotFound from "./component/NotFound.js";
 import Loading from "./component/Loading.js";
 
 import catAPI from "./api/catAPI.js";
+import InfiniteScroller from "./util/InfiniteScroller.js";
 export default class App {
   constructor($target) {
     this.$target = $target;
@@ -17,6 +18,16 @@ export default class App {
     this.contentSection = new ContentSection({ $target: this.$target });
     this.notFound = new NotFound();
     this.Loading = new Loading();
+
+    this.infScroller = new InfiniteScroller(async () => {
+      const cats = await this.fetchCatData({ limit: 20 });
+      this.setState({
+        ...this.state,
+        dataset: [...this.state.dataset, ...cats]
+      });
+    });
+
+    this.scroller;
     this.render();
   }
 
@@ -31,6 +42,7 @@ export default class App {
   setState(nextState) {
     const curState = this.getState();
     this.state = JSON.parse(JSON.stringify({ ...curState, ...nextState }));
+    this.render();
   }
 
   async fetchCatData(params) {
@@ -43,8 +55,6 @@ export default class App {
       } else {
         cats = await catAPI.breeds.findByName({ name: breed_name });
       }
-
-      cats[0].id = null;
       const catImgPromises = cats.map(async cat => {
         let response;
         try {

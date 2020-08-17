@@ -20,7 +20,7 @@ export default class Card {
     const { breed, image } = this.state.data;
     this.$cardImg = createElement("img", {
       class: "card__img",
-      src: image ? image.url : "#",
+      src: image ? image.url : "statics/images/450px-No_image_available.png",
       alt: "card img alt"
     });
     // this.$cardTitle = createElement(
