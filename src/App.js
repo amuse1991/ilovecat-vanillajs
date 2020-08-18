@@ -16,8 +16,9 @@ export default class App {
     };
     this.searchSection = new SearchSection({ $target: this.$target });
     this.contentSection = new ContentSection({ $target: this.$target });
+
+    this.Loading = new Loading({ $target: this.$target });
     this.notFound = new NotFound();
-    this.Loading = new Loading();
 
     this.infScroller = new InfiniteScroller(async () => {
       const cats = await this.fetchCatData({ limit: 20 });
@@ -48,6 +49,9 @@ export default class App {
   async fetchCatData(params) {
     const { breed_name, limit } = params;
     let cats = null;
+
+    this.Loading.open();
+
     try {
       // 고양이 종으로 검색
       if (!breed_name) {
@@ -88,9 +92,10 @@ export default class App {
       //   cat.url = url;
       //   return cats;
       // }, Promise.resolve(cats));
-
+      this.Loading.close();
       return cats;
     } catch (err) {
+      this.Loading.close();
       throw err;
     }
   }
