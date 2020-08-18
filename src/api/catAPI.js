@@ -7,7 +7,7 @@ const request = async (url, method = "GET", params = {}, body = {}) => {
   }
   const queryStr = Object.entries(params).reduce((qStr, entry) => {
     const [key, val] = entry;
-    return qStr === "" ? `?${key}=${val}` : `${qStr}&&${key}=${val}`;
+    return qStr === "" ? `?${key}=${val}` : `${qStr}&${key}=${val}`;
   }, "");
   // FIXME: reducer 안에서 발생하는 에러 캐치가 안됨
   const response = await fetch(url + queryStr, {

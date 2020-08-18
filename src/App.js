@@ -28,7 +28,13 @@ export default class App {
       });
     });
 
-    this.scroller;
+    const $randCatBtn = document.querySelector(".serach__random");
+    $randCatBtn.addEventListener("click", async () => {
+      const cats = await this.fetchCatData({
+        limit: 20
+      });
+      this.contentSection.setState({ dataset: cats });
+    });
     this.render();
   }
 
@@ -47,7 +53,7 @@ export default class App {
   }
 
   async fetchCatData(params) {
-    const { breed_name, limit } = params;
+    const { breed_name } = params;
     let cats = null;
 
     this.Loading.open();
@@ -55,7 +61,8 @@ export default class App {
     try {
       // 고양이 종으로 검색
       if (!breed_name) {
-        cats = await catAPI.breeds.getList({ limit });
+        cats = await catAPI.breeds.getList(params);
+        console.log("2", params);
       } else {
         cats = await catAPI.breeds.findByName({ name: breed_name });
       }

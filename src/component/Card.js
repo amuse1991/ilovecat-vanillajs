@@ -17,26 +17,28 @@ export default class Card {
   setState() {}
 
   render() {
-    const { breed, image } = this.state.data;
+    const { name, image, alt_names, description } = this.state.data;
     this.$cardImg = createElement("img", {
       class: "card__img",
       src: image ? image.url : "statics/images/450px-No_image_available.png",
-      alt: "card img alt"
+      alt: alt_names
     });
-    // this.$cardTitle = createElement(
-    //   "h1",
-    //   {
-    //     class: "card__title"
-    //   },
-    //   elem => (elem.innerText = data.name)
-    // );
-    // this.$cardDesc = createElement(
-    //   "p",
-    //   {
-    //     class: "card__description"
-    //   },
-    //   elem => (elem.innerText = data.origin)
-    // );
+    this.$cardTitle = createElement(
+      "h1",
+      {
+        class: "card__title"
+      },
+      elem => (elem.innerText = name)
+    );
+    this.$cardDesc = createElement(
+      "p",
+      {
+        class: "card__description"
+      },
+      elem => (elem.innerText = description)
+    );
     this.$card.appendChild(this.$cardImg);
+    this.$card.appendChild(this.$cardTitle);
+    this.$card.appendChild(this.$cardDesc);
   }
 }
