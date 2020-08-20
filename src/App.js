@@ -5,6 +5,8 @@ import ContentSection from "./container/ContentSection.js";
 import NotFound from "./component/NotFound.js";
 import Loading from "./component/Loading.js";
 
+import debounce from "./util/debounce.js";
+
 import catAPI from "./api/catAPI.js";
 import InfiniteScroller from "./util/InfiniteScroller.js";
 export default class App {
@@ -16,11 +18,23 @@ export default class App {
     this.Loading = new Loading({ $target: this.$target });
     this.notFound = new NotFound();
 
-    this.infScroller = new InfiniteScroller(async () => {
-      const cats = await this.fetchCatData({ limit: 20 });
-      const curCats = this.contentSection.getState().dataset;
-      this.contentSection.setState({ dataset: [...curCats, ...cats] });
-    });
+    this.infScroller = new InfiniteScroller();
+
+    window.addEventListener(
+      "scroll",
+      debounce(async () => {
+        console.log("scroll");
+        if (
+          window.pageYOffset <
+          document.body.offsetHeight - window.innerHeight
+        )
+          return;
+        // document 크기보다 더 많이 스크롤한 경우 onInf 함수 호출
+        const cats = await this.fetchCatData({ limit: 20 });
+        const curCats = this.contentSection.getState().dataset;
+        this.contentSection.setState({ dataset: [...curCats, ...cats] });
+      }, 250)
+    );
 
     this.searchSection.$randCatBtn.addEventListener("click", async () => {
       const cats = await this.fetchCatData({
@@ -35,20 +49,24 @@ export default class App {
     );
 
     // TODO: debouncing
-    this.searchSection.$searchInput.addEventListener("keydown", async event => {
-      if (event.key !== "Enter") return;
-      const keyword = event.target.value;
-      const cats = await this.fetchCatData({ breed_name: keyword });
-      this.contentSection.setState({ dataset: cats });
+    this.searchSection.$searchInput.addEventListener(
+      "keydown",
+      debounce(async event => {
+        console.log(event.target);
+        if (event.key !== "Enter") return;
+        const keyword = event.target.value;
+        const cats = await this.fetchCatData({ breed_name: keyword });
+        this.contentSection.setState({ dataset: cats });
 
-      const searchSectState = this.searchSection.getState();
-      if (keyword) {
-        this.searchSection.setState({
-          ...searchSectState,
-          searchLogs: [...searchSectState.searchLogs, keyword]
-        });
-      }
-    });
+        const searchSectState = this.searchSection.getState();
+        if (keyword) {
+          this.searchSection.setState({
+            ...searchSectState,
+            searchLogs: [...searchSectState.searchLogs, keyword]
+          });
+        }
+      }, 250)
+    );
 
     this.searchSection.$historyGroup.addEventListener("click", async event => {
       if (event.target.classList.contains("search__history-item")) {
@@ -119,7 +137,6 @@ export default class App {
 
   async render() {
     const contentData = this.contentSection.getState().dataset;
-    console.log(contentData);
     if (!Array.isArray(contentData) || contentData.length < 0) {
       try {
         const initData = await this.fetchCatData({ limit: 20 });

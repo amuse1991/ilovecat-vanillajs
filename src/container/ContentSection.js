@@ -18,7 +18,6 @@ export default class ContentSection {
     });
     this.$content = null;
     this.$noContent = createElement("p", { class: "no-content" }, elem => {
-      console.log(elem);
       elem.innerText = "컨텐츠가 없습니다.";
     });
 

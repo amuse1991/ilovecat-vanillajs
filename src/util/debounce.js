@@ -7,19 +7,11 @@ function debounce(fn, delay) {
     // 클로져 함수 안에서 this 와 arguments 변수로 디바운싱 함수의 스코프와 변수를 접근한다.
     let context = this;
     let args = arguments;
-    // 만약 이벤트가 호출되면 타이머를 초기화 하고 다시 시작한다.
-    clearTimeout(timer);
+    clearTimeout(timer); // delay 중 입력이 들어오면(debounce가 다시 호출되면) 타이머를 리셋한다.
     timer = setTimeout(function () {
       fn.apply(context, args);
-    }, delay);
+    }, delay); // delay 동안 입력이 없으면 fn을 실행한다.
   };
 }
 
-// 사용자가 스크롤 할 때 호출되는 이벤트 함수
-function foo() {
-  console.log("You are scrolling!");
-}
-
-// 이벤트 함수를 디바운싱 함수로 감싸서 2초 마다 발생하도록 한다.
-let elem = document.getElementById("container");
-elem.addEventListener("scroll", debounce(foo, 2000));
+export default debounce;

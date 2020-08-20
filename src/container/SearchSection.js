@@ -7,7 +7,6 @@ export default class SearchSection {
       searchLogs: []
     };
     const storedSearchLogs = localStorage.getItem(SEARCH_LOG_KEY);
-    console.log(storedSearchLogs);
     if (storedSearchLogs) {
       try {
         initialState.searchLogs = JSON.parse(storedSearchLogs);
@@ -96,7 +95,6 @@ export default class SearchSection {
   render() {
     const { searchLogs } = this.state;
     if (searchLogs && searchLogs.length > 0) {
-      console.log(this);
       this.$historyGroup.innerHTML = ``;
       searchLogs.forEach(log => {
         this.$historyGroup.appendChild(
