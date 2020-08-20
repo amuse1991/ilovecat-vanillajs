@@ -3,7 +3,7 @@ export default class Lodading {
   constructor({ $target }) {
     this.$target = $target;
     this.$lodingContainer = createElement("figure", {
-      class: "loading"
+      class: "loading loading--hidden"
     });
     this.$lodingContainer.appendChild(
       createElement("img", {

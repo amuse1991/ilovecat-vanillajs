@@ -10,10 +10,6 @@ import InfiniteScroller from "./util/InfiniteScroller.js";
 export default class App {
   constructor($target) {
     this.$target = $target;
-    this.state = {
-      isInitial: true,
-      dataset: []
-    };
     this.searchSection = new SearchSection({ $target: this.$target });
     this.contentSection = new ContentSection({ $target: this.$target });
 
@@ -22,19 +18,29 @@ export default class App {
 
     this.infScroller = new InfiniteScroller(async () => {
       const cats = await this.fetchCatData({ limit: 20 });
-      this.setState({
-        ...this.state,
-        dataset: [...this.state.dataset, ...cats]
-      });
+      const curCats = this.contentSection.getState().dataset;
+      this.contentSection.setState({ dataset: [...curCats, ...cats] });
     });
 
-    const $randCatBtn = document.querySelector(".serach__random");
-    $randCatBtn.addEventListener("click", async () => {
+    this.searchSection.$randCatBtn.addEventListener("click", async () => {
       const cats = await this.fetchCatData({
         limit: 20
       });
       this.contentSection.setState({ dataset: cats });
     });
+
+    this.searchSection.$darkModeBtn.addEventListener(
+      "click",
+      this.searchSection.onDarkModeBtnClicked
+    );
+
+    // TODO: debouncing
+    this.searchSection.$searchInput.addEventListener("keydown", async event => {
+      if (event.key !== "Enter") return;
+      const cats = await this.fetchCatData({ breed_name: event.target.value });
+      this.contentSection.setState({ dataset: cats });
+    });
+
     this.render();
   }
 
@@ -55,6 +61,7 @@ export default class App {
   async fetchCatData(params) {
     const { breed_name } = params;
     let cats = null;
+    console.log("fetch");
 
     this.Loading.open();
 
@@ -108,23 +115,19 @@ export default class App {
   }
 
   async render() {
-    if (this.getState().isInitial) {
+    const contentData = this.contentSection.getState().dataset;
+    console.log(contentData);
+    if (!Array.isArray(contentData) || contentData.length < 0) {
       try {
         const initData = await this.fetchCatData({ limit: 20 });
-        this.setState({
-          dataset: initData
-        });
+        this.contentSection.setState({ dataset: initData });
+        return;
       } catch (error) {
         // handle network error
         console.error(error);
       }
-
-      this.setState({
-        isInitial: false
-      });
     }
 
-    const { dataset } = this.getState();
-    this.contentSection.setState({ dataset });
+    this.contentSection.setState({ dataset: contentData });
   }
 }

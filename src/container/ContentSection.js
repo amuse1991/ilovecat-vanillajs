@@ -1,5 +1,7 @@
 import createElement from "../util/createElement.js";
 import CardList from "../component/CardList.js";
+
+const CAT_STORAGE_KEY = "cats";
 export default class ContentSection {
   constructor({ $target }) {
     this.$target = $target;
@@ -7,6 +9,10 @@ export default class ContentSection {
       Contnent: null,
       dataset: []
     };
+    const storedData = JSON.parse(localStorage.getItem(CAT_STORAGE_KEY));
+    if (storedData) {
+      this.state.dataset = storedData;
+    }
     this.$contentContainer = createElement("section", {
       class: "content"
     });
@@ -22,6 +28,7 @@ export default class ContentSection {
 
   setState(nextState) {
     this.state = JSON.parse(JSON.stringify({ ...this.state, ...nextState }));
+    localStorage.setItem(CAT_STORAGE_KEY, JSON.stringify(this.state.dataset));
     this.render();
   }
 
@@ -34,6 +41,7 @@ export default class ContentSection {
 
     const { dataset } = this.getState();
     if (!Array.isArray(dataset) || dataset.length < 1) {
+      const storedData = localStorage.getItem(CAT_STORAGE_KEY);
       this.$content = this.$noContent;
       this.$contentContainer.appendChild(this.$content);
     } else {
