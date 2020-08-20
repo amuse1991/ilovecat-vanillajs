@@ -1,6 +1,7 @@
 body {
   --text-color: #222;
   --bkg-color: #fff;
+  --animation-dark-mode: background-color 500ms ease-in-out 0s;
 }
 
 body.dark-theme {
@@ -23,6 +24,9 @@ body.dark-theme {
 body {
   background-color: var(--bkg-color);
   color: var(--text-color);
+  transition: var(--animation-dark-mode);
+  transition: var(--animation-dark-mode);
+  /* transition: color 2s linear 0s; */
 }
 
 .app {
@@ -34,7 +38,11 @@ body {
 .search {
   display: grid;
   grid-template-columns: minmax(60px, 10%) auto 10%;
+  background-color: var(--bkg-color);
   column-gap: 10px;
+  position: sticky;
+  top: 0;
+  transition: var(--animation-dark-mode);
 }
 
 .serach__random {
