@@ -37,18 +37,24 @@ export default class SearchSection {
       })
     );
 
-    this.$container.appendChild(
-      createElement(
-        "button",
-        {
-          type: "button",
-          class: "darkmode-btn"
-        },
-        elem => {
-          elem.innerText = "🐈";
-        }
-      )
+    const darkModeBtn = createElement(
+      "button",
+      {
+        type: "button",
+        class: "darkmode-btn"
+      },
+      elem => {
+        elem.innerText = "🐈";
+      }
     );
+    this.$container.appendChild(darkModeBtn);
+    darkModeBtn.addEventListener("click", () => {
+      console.log(window.matchMedia("(prefers-color-scheme: dark)"));
+      const isDarkClient = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches;
+      const theme = isDarkClient ? "light-theme" : "dark-theme";
+      document.body.classList.toggle(theme);
+    });
 
     const $historyGroup = createElement("ul", {
       class: "search__history-group"
