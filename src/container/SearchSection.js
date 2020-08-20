@@ -1,11 +1,23 @@
 import createElement from "../util/createElement.js";
 
+const SEARCH_LOG_KEY = "search_logs";
 export default class SearchSection {
   constructor({ $target, state }) {
     const initialState = {
-      searchLogs: ["hello", "hi"],
-      darkmode: false
+      searchLogs: []
     };
+    const storedSearchLogs = localStorage.getItem(SEARCH_LOG_KEY);
+    console.log(storedSearchLogs);
+    if (storedSearchLogs) {
+      try {
+        initialState.searchLogs = JSON.parse(storedSearchLogs);
+      } catch (err) {
+        console.error(
+          "fail to parse stored search logs. please clear your local storage and try again"
+        );
+      }
+    }
+
     this.$target = $target;
     this.state = state || initialState;
     this.$container = createElement("section", {
@@ -50,19 +62,24 @@ export default class SearchSection {
     );
     this.$container.appendChild(this.$darkModeBtn);
 
-    const $historyGroup = createElement("ul", {
+    this.$historyGroup = createElement("ul", {
       class: "search__history-group"
     });
-    this.$container.appendChild($historyGroup);
+    this.$container.appendChild(this.$historyGroup);
 
-    $historyGroup.addEventListener("click", this.onHistoryClicked.bind(this));
     this.onDarkModeBtnClicked = this.onDarkModeBtnClicked.bind(this);
 
     this.render();
   }
 
-  onHistoryClicked(event) {
-    console.log(event.target);
+  setState(nextState) {
+    this.state = JSON.parse(JSON.stringify(nextState));
+    localStorage.setItem(SEARCH_LOG_KEY, JSON.stringify(this.state.searchLogs));
+    this.render();
+  }
+
+  getState() {
+    return JSON.parse(JSON.stringify(this.state));
   }
 
   onDarkModeBtnClicked(event) {
@@ -76,12 +93,13 @@ export default class SearchSection {
     localStorage.setItem("theme", curTheme);
   }
 
-  render(init) {
-    const { searchLogs, darkmode } = this.state;
+  render() {
+    const { searchLogs } = this.state;
     if (searchLogs && searchLogs.length > 0) {
-      const $historyGroup = document.querySelector(".search__history-group");
+      console.log(this);
+      this.$historyGroup.innerHTML = ``;
       searchLogs.forEach(log => {
-        $historyGroup.appendChild(
+        this.$historyGroup.appendChild(
           createElement(
             "li",
             {

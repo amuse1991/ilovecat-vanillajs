@@ -37,24 +37,27 @@ export default class App {
     // TODO: debouncing
     this.searchSection.$searchInput.addEventListener("keydown", async event => {
       if (event.key !== "Enter") return;
-      const cats = await this.fetchCatData({ breed_name: event.target.value });
+      const keyword = event.target.value;
+      const cats = await this.fetchCatData({ breed_name: keyword });
       this.contentSection.setState({ dataset: cats });
+
+      const searchSectState = this.searchSection.getState();
+      if (keyword) {
+        this.searchSection.setState({
+          ...searchSectState,
+          searchLogs: [...searchSectState.searchLogs, keyword]
+        });
+      }
     });
 
-    this.render();
-  }
+    this.searchSection.$historyGroup.addEventListener("click", async event => {
+      if (event.target.classList.contains("search__history-item")) {
+        const keyword = event.target.textContent;
+        const cats = await this.fetchCatData({ breed_name: keyword });
+        this.contentSection.setState({ dataset: cats });
+      }
+    });
 
-  getStateRef() {
-    return this.state;
-  }
-
-  getState() {
-    return JSON.parse(JSON.stringify(this.state));
-  }
-
-  setState(nextState) {
-    const curState = this.getState();
-    this.state = JSON.parse(JSON.stringify({ ...curState, ...nextState }));
     this.render();
   }
 
