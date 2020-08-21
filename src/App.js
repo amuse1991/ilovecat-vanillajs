@@ -6,6 +6,7 @@ import NotFound from "./component/NotFound.js";
 import Loading from "./component/Loading.js";
 
 import debounce from "./util/debounce.js";
+import throttle from "./util/throttle.js";
 
 import catAPI from "./api/catAPI.js";
 import InfiniteScroller from "./util/InfiniteScroller.js";
@@ -22,8 +23,7 @@ export default class App {
 
     window.addEventListener(
       "scroll",
-      debounce(async () => {
-        console.log("scroll");
+      throttle(async () => {
         if (
           window.pageYOffset <
           document.body.offsetHeight - window.innerHeight
@@ -33,7 +33,7 @@ export default class App {
         const cats = await this.fetchCatData({ limit: 20 });
         const curCats = this.contentSection.getState().dataset;
         this.contentSection.setState({ dataset: [...curCats, ...cats] });
-      }, 250)
+      }, 500)
     );
 
     this.searchSection.$randCatBtn.addEventListener("click", async () => {
@@ -48,7 +48,6 @@ export default class App {
       this.searchSection.onDarkModeBtnClicked
     );
 
-    // TODO: debouncing
     this.searchSection.$searchInput.addEventListener(
       "keydown",
       debounce(async event => {

@@ -1,4 +1,5 @@
 import createElement from "../util/createElement.js";
+import throttle from "../util/throttle.js";
 
 export default class Card {
   constructor({ $target, data }) {
@@ -11,6 +12,7 @@ export default class Card {
     });
 
     this.$target.appendChild(this.$card);
+
     this.render();
   }
   getState() {}
@@ -19,9 +21,12 @@ export default class Card {
   render() {
     const { name, image, alt_names, description } = this.state.data;
     this.$cardImg = createElement("img", {
-      class: "card__img",
-      src: image ? image.url : "statics/images/450px-No_image_available.png",
-      alt: alt_names
+      class: "card__img lazy",
+      // src: image ? image.url : "statics/images/450px-No_image_available.png",
+      alt: alt_names || `cat ${name} image`,
+      "data-src": image
+        ? image.url
+        : "statics/images/450px-No_image_available.png"
     });
     this.$cardTitle = createElement(
       "h1",

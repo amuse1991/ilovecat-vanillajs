@@ -1,5 +1,6 @@
 import createElement from "../util/createElement.js";
 import CardList from "../component/CardList.js";
+import lazyload from "../util/lazyload.js";
 
 const CAT_STORAGE_KEY = "cats";
 export default class ContentSection {
@@ -40,11 +41,12 @@ export default class ContentSection {
 
     const { dataset } = this.getState();
     if (!Array.isArray(dataset) || dataset.length < 1) {
-      const storedData = localStorage.getItem(CAT_STORAGE_KEY);
       this.$content = this.$noContent;
       this.$contentContainer.appendChild(this.$content);
     } else {
       this.content = new CardList({ $target: this.$contentContainer, dataset });
     }
+
+    lazyload();
   }
 }
